@@ -27,8 +27,9 @@ import logging
 import sys
 from typing import Any, Dict
 
-from mcp.server import Server
+from mcp.server.lowlevel.server import Server, NotificationOptions
 from mcp.server.models import InitializationOptions
+from mcp import types
 from mcp.server.stdio import stdio_server
 from mcp.types import Tool
 
@@ -347,19 +348,25 @@ async def main():
         logger.error(f"Failed to perform startup health check: {e}")
     
     # Start the server
-    async with stdio_server() as (read_stream, write_stream):
-        await server.run(
-            read_stream,
-            write_stream,
-            InitializationOptions(
-                server_name="mlflow-mcp-server",
-                server_version="2.0.0",
-                capabilities=server.get_capabilities(
-                    notification_options=None,
-                    experimental_capabilities=None,
+    try:
+        async with stdio_server() as (read_stream, write_stream):
+            await server.run(
+                read_stream,
+                write_stream,
+                InitializationOptions(
+                    server_name="mlflow-mcp-server",
+                    server_version="2.0.0",
+                    capabilities=server.get_capabilities(
+                        notification_options=NotificationOptions(),
+                        experimental_capabilities={}
+                    )
                 )
             )
-        )
+    except Exception as e:
+        logger.error(f"Server runtime error: {e}")
+        import traceback
+        logger.error(f"Full traceback: {traceback.format_exc()}")
+        raise
 
 
 if __name__ == "__main__":
