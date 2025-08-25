@@ -1,6 +1,6 @@
 # MLflow MCP Server
 
-A Model Context Protocol (MCP) server that enables Claude Desktop to interact with MLflow experiments through natural language conversations.
+A well-structured, modular Model Context Protocol (MCP) server that enables Claude Desktop to interact with MLflow experiments through natural language conversations.
 
 ## Features
 
@@ -9,6 +9,31 @@ A Model Context Protocol (MCP) server that enables Claude Desktop to interact wi
 - **Cross-run Analysis**: Automatic statistical comparisons with recommendations
 - **Artifact Analysis**: Reads plots, JSON data, and classification reports directly
 - **Troubleshooting**: Smart error messages with specific suggestions
+- **Modular Architecture**: Clean, maintainable codebase following software engineering best practices
+
+## Architecture
+
+The server follows a modular design with clear separation of concerns:
+
+```
+mlflow_mcp_server/
+├── server.py              # Main MCP server (372 lines)
+├── src/
+│   ├── config.py          # Configuration and setup
+│   ├── exceptions.py      # Custom exception classes
+│   ├── models/            # Pydantic data models
+│   │   └── __init__.py    # RunInfo, ModelVersionInfo, etc.
+│   ├── utils/             # Utility functions and decorators
+│   │   ├── __init__.py    # Caching, error handling, MCP response formatting
+│   │   └── mlflow_client.py # Enhanced MLflow client wrapper
+│   └── tools/             # MCP tool implementations
+│       ├── experiments.py # Experiment management
+│       ├── runs.py       # Run tracking and comparison
+│       ├── models.py     # Model registry operations
+│       ├── artifacts.py  # Artifact handling
+│       └── system.py     # Health checks and system info
+└── README.md
+```
 
 ## Quick Start
 
@@ -38,9 +63,9 @@ uv run pre-commit install
 
 ### Configuration
 
-1. Update the MLflow tracking URI in `server.py` if needed:
+1. Update the MLflow tracking URI in `src/config.py` if needed:
 ```python
-MLFLOW_TRACKING_URI = "http://localhost:5000"  # Update as needed
+TRACKING_URI = "http://localhost:5000"  # Update as needed
 ```
 
 2. Configure Claude Desktop by adding to your `claude_desktop_config.json`:
